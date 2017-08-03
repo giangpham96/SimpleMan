@@ -4,6 +4,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.PixelFormat;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
@@ -252,10 +253,13 @@ public class ShortcutService extends Service {
     private void createDimBackground() {
         dimView = LayoutInflater.from(this).inflate(R.layout.dim_background, null);
         dimView.setVisibility(View.GONE);
+        int type = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                ? WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+                : WindowManager.LayoutParams.TYPE_PHONE;
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.MATCH_PARENT,
                 WindowManager.LayoutParams.MATCH_PARENT,
-                WindowManager.LayoutParams.TYPE_PHONE,
+                type,
                 WindowManager.LayoutParams.FLAG_IGNORE_CHEEK_PRESSES,
                 PixelFormat.TRANSLUCENT);
         getWindowManager().addView(dimView, params);
@@ -282,10 +286,13 @@ public class ShortcutService extends Service {
 
     private void createShortcutView() {
         shortcutView = LayoutInflater.from(this).inflate(R.layout.shortcut_floating_button, null);
+        int type = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                ? WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+                : WindowManager.LayoutParams.TYPE_PHONE;
         shortcutParams = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.TYPE_PHONE,
+                type,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                 PixelFormat.TRANSLUCENT
         );
@@ -310,10 +317,13 @@ public class ShortcutService extends Service {
         resetSize();
         int width = getGifViewWidth();
         int height = getGifViewHeight();
+        int type = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                ? WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+                : WindowManager.LayoutParams.TYPE_PHONE;
         gifContainerParams = new WindowManager.LayoutParams(
                 width,
                 height,
-                WindowManager.LayoutParams.TYPE_PHONE,
+                type,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                 PixelFormat.TRANSLUCENT
         );
