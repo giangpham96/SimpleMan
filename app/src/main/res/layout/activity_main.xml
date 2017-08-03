@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:gravity="center"
     android:orientation="vertical"
-    app:cardCornerRadius="15dp"
+    app:cardCornerRadius="2dp"
     tools:context="leo.me.la.simpleman.MainActivity">
 
     <LinearLayout

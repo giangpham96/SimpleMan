@@ -50,20 +50,78 @@ import static android.view.MotionEvent.ACTION_DOWN;
 import static java.lang.Math.abs;
 
 public class ShortcutService extends Service {
-
-    private final float VERTICAL_ANCHOR_POSITION_PROPORTION = 0.078125f;
-    FloatingActionButton reload;
+    /**
+     * The ratio between the vertical position of shortcut button
+     * and the height of device's screen
+     */
+    private final float VERTICAL_POSITION_RATIO = 0.078125f;
+    /**
+     * The image view that shows the gif image
+     */
     ImageView imageView;
-    private WindowManager windowManager;
-    private FrameLayout containerView;
-    private View shortcutView, gifView, dimView;
-    private WindowManager.LayoutParams shortcutParams, gifContainerParams;
-    private int widthPixels, heightPixels;
-    private int toX, toY;
-    private int restoreX, restoreY;
+    /**
+     * The button that is used to load another gif
+     */
+    FloatingActionButton reload;
+    /**
+     * The ViewGroup which contains the {@link ShortcutService#gifView}
+     * so that the {@link ShortcutService#gifView} can be animated
+     */
+    private FrameLayout gifContainer;
+    /**
+     * The view that shows gif and reload button, etc
+     */
+    private View gifView;
+    /**
+     * The height of the indicator inside {@link ShortcutService#gifView}
+     */
     private int indicatorHeight;
-    private int shortcutHeight;
+    /**
+     * Rotate the {@link ShortcutService#reload} button when the app is requesting for new gif
+     */
+    private Animation rotateAnimation;
+    /**
+     * Used to add, remove and position {@link ShortcutService#shortcutView},
+     * {@link ShortcutService#gifContainer} and {@link ShortcutService#dimView}
+     */
+    private WindowManager windowManager;
+    /**
+     * The floating button
+     */
+    private View shortcutView;
+    /**
+     * The diameter of shortcut button
+     */
+    private int shortcutDiameter;
+    /**
+     * Used to update the position of {@link ShortcutService#shortcutView}
+     * when the {@link ShortcutService#gifView} is shown or hidden
+     */
     private Handler handler = new Handler();
+    /**
+     * The position which the shortcut button is located when clicked.
+     * toX is equals to {@link ShortcutService#widthPixels},
+     * and toY is equals to
+     * {@link ShortcutService#heightPixels} * {@link ShortcutService#VERTICAL_POSITION_RATIO}
+     */
+    private int toX, toY;
+    /**
+     * The coordinates where the shortcut is located before being clicked
+     */
+    private int restoreX, restoreY;
+    /**
+     * The view that simulate the dim behind the {@link ShortcutService#gifView}
+     * and the {@link ShortcutService#shortcutView}
+     */
+    private View dimView;
+    /**
+     * Params of {@link ShortcutService#shortcutView} and {@link ShortcutService#gifContainer}
+     */
+    private WindowManager.LayoutParams shortcutParams, gifContainerParams;
+    /**
+     * Restore the position of {@link ShortcutService#shortcutView} after
+     * {@link ShortcutService#gifView} is hidden
+     */
     private Runnable restoreShortcutPosition = new Runnable() {
         @Override
         public void run() {
@@ -100,8 +158,19 @@ public class ShortcutService extends Service {
             handler.postDelayed(this, 1L);
         }
     };
+    /**
+     * The width and height of screen in pixel
+     */
+    private int widthPixels, heightPixels;
+    /**
+     * Glide request to load Gif
+     */
     private RequestBuilder<GifDrawable> request;
-    private Animation rotateAnimation;
+    /**
+     * Move the {@link ShortcutService#shortcutView}
+     * to {@link ShortcutService#toX} and {@link ShortcutService#toY}
+     * before {@link ShortcutService#gifView} is shown
+     */
     private Runnable updateShortcutPosition = new Runnable() {
         @Override
         public void run() {
@@ -141,6 +210,9 @@ public class ShortcutService extends Service {
             handler.postDelayed(this, 1L);
         }
     };
+    /**
+     * Touch listener of {@link ShortcutService#shortcutView}
+     */
     View.OnTouchListener shortcutTouchListener = new View.OnTouchListener() {
         private static final int MAX_CLICK_DURATION = 200;
         private long startClickTime;
@@ -157,7 +229,7 @@ public class ShortcutService extends Service {
                     //remember the initial position.
                     initialX = shortcutParams.x;
                     initialY = shortcutParams.y;
-
+                    shortcutView.findViewById(R.id.shortcut).setAlpha(0.85f);
                     //get the touch location
                     initialTouchX = event.getRawX();
                     initialTouchY = event.getRawY();
@@ -167,6 +239,7 @@ public class ShortcutService extends Service {
                     //As we implemented on touch listener with ACTION_MOVE,
                     //we have to check if the previous action was ACTION_DOWN
                     //to identify if the user clicked the dimView or not.
+                    shortcutView.findViewById(R.id.shortcut).setAlpha(0.6f);
                     if (System.currentTimeMillis() - startClickTime < MAX_CLICK_DURATION) {
                         if (removeGifView()) {
                             handler.post(restoreShortcutPosition);
@@ -223,12 +296,12 @@ public class ShortcutService extends Service {
         super.onConfigurationChanged(newConfig);
         resetSize();
         if (gifView != null) {
-            shortcutParams.y = (int) (heightPixels * VERTICAL_ANCHOR_POSITION_PROPORTION);
+            shortcutParams.y = (int) (heightPixels * VERTICAL_POSITION_RATIO);
             gifContainerParams.width = getGifViewWidth();
             gifContainerParams.height = getGifViewHeight();
             gifContainerParams.x = widthPixels;
-            gifContainerParams.y = shortcutParams.y + shortcutHeight;
-            windowManager.updateViewLayout(containerView, gifContainerParams);
+            gifContainerParams.y = shortcutParams.y + shortcutDiameter;
+            windowManager.updateViewLayout(gifContainer, gifContainerParams);
         }
         toX = (toX > widthPixels / 2) ? widthPixels : 0;
         shortcutParams.x = (shortcutParams.x > widthPixels / 2) ? widthPixels : 0;
@@ -300,19 +373,19 @@ public class ShortcutService extends Service {
         shortcutParams.gravity = Gravity.TOP | Gravity.START;
         resetSize();
         shortcutParams.x = widthPixels;
-        shortcutParams.y = (int) (heightPixels * VERTICAL_ANCHOR_POSITION_PROPORTION);
+        shortcutParams.y = (int) (heightPixels * VERTICAL_POSITION_RATIO);
         restoreX = widthPixels;
-        restoreY = (int) (heightPixels * VERTICAL_ANCHOR_POSITION_PROPORTION);
+        restoreY = (int) (heightPixels * VERTICAL_POSITION_RATIO);
         getWindowManager().addView(shortcutView, shortcutParams);
 
         shortcutView.findViewById(R.id.shortcut).setOnTouchListener(shortcutTouchListener);
     }
 
     private void createGifView() {
-        containerView = new FrameLayout(this);
-        containerView.setFocusableInTouchMode(true);
-        containerView.setFocusable(true);
-        containerView.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+        gifContainer = new FrameLayout(this);
+        gifContainer.setFocusableInTouchMode(true);
+        gifContainer.setFocusable(true);
+        gifContainer.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
         gifView = LayoutInflater.from(this).inflate(R.layout.boobs_view, null);
         resetSize();
         int width = getGifViewWidth();
@@ -330,9 +403,9 @@ public class ShortcutService extends Service {
 
         gifContainerParams.gravity = Gravity.TOP | Gravity.START;
         gifContainerParams.x = widthPixels;
-        gifContainerParams.y = toY + shortcutHeight;
-        getWindowManager().addView(containerView, gifContainerParams);
-        containerView.addView(gifView);
+        gifContainerParams.y = toY + shortcutDiameter;
+        getWindowManager().addView(gifContainer, gifContainerParams);
+        gifContainer.addView(gifView);
         ScaleAnimation animation = new ScaleAnimation(
                 0f, 1f, 0f, 1f,
                 Animation.ABSOLUTE, width,
@@ -346,15 +419,15 @@ public class ShortcutService extends Service {
     }
 
     private int getGifViewWidth() {
-        return (widthPixels < heightPixels - shortcutParams.y - shortcutHeight)
+        return (widthPixels < heightPixels - shortcutParams.y - shortcutDiameter)
                 ? widthPixels * 8 / 10
-                : (heightPixels - shortcutParams.y - shortcutHeight) * 8 / 10 - indicatorHeight;
+                : (heightPixels - shortcutParams.y - shortcutDiameter) * 8 / 10 - indicatorHeight;
     }
 
     private int getGifViewHeight() {
-        return (widthPixels < heightPixels - shortcutParams.y - shortcutHeight)
+        return (widthPixels < heightPixels - shortcutParams.y - shortcutDiameter)
                 ? widthPixels * 8 / 10 + indicatorHeight
-                : (heightPixels - shortcutParams.y - shortcutHeight) * 8 / 10;
+                : (heightPixels - shortcutParams.y - shortcutDiameter) * 8 / 10;
     }
 
     private void initGifView() {
@@ -392,15 +465,15 @@ public class ShortcutService extends Service {
 
             }
         });
-        if (containerView != null) {
+        if (gifContainer != null) {
             if (gifView != null) {
                 //remove gif view
-                containerView.removeView(gifView);
+                gifContainer.removeView(gifView);
                 gifView = null;
             }
             //remove container view
-            getWindowManager().removeView(containerView);
-            containerView = null;
+            getWindowManager().removeView(gifContainer);
+            gifContainer = null;
             return true;
         }
         return false;
@@ -419,9 +492,9 @@ public class ShortcutService extends Service {
         widthPixels = displayMetrics.widthPixels;
         toX = widthPixels;
         heightPixels = displayMetrics.heightPixels;
-        toY = (int) (heightPixels * VERTICAL_ANCHOR_POSITION_PROPORTION);
+        toY = (int) (heightPixels * VERTICAL_POSITION_RATIO);
         indicatorHeight = getResources().getDimensionPixelSize(R.dimen.indicator_height);
-        shortcutHeight = getResources().getDimensionPixelSize(R.dimen.shortcut_size);
+        shortcutDiameter = getResources().getDimensionPixelSize(R.dimen.shortcut_size);
     }
 
     private void initGlideRequest() {
@@ -436,15 +509,17 @@ public class ShortcutService extends Service {
                         public boolean onLoadFailed(@Nullable GlideException e, Object model,
                                                     Target<GifDrawable> target, boolean isFirstResource) {
                             Toast.makeText(ShortcutService.this, R.string.fail_load_image, Toast.LENGTH_SHORT).show();
+                            removeGifView();
                             return false;
                         }
 
                         @Override
                         public boolean onResourceReady(GifDrawable resource, Object model,
                                                        Target<GifDrawable> target, DataSource dataSource, boolean isFirstResource) {
-//                        reload.show();
                             reload.clearAnimation();
                             reload.setEnabled(true);
+                            if (gifView != null)
+                                gifView.findViewById(R.id.search).setVisibility(View.GONE);
                             return false;
                         }
                     });
@@ -452,17 +527,19 @@ public class ShortcutService extends Service {
     }
 
     private void requestImage() {
-//        reload.hide();
+        gifView.findViewById(R.id.search).setVisibility(View.VISIBLE);
+        imageView.setVisibility(View.GONE);
         reload.startAnimation(rotateAnimation);
         reload.setEnabled(false);
         APIService apiService = RetrofitClient.getClient().create(APIService.class);
-        apiService.getImage(getRandomTag(), "2a1b3bd2aed440d2b7b96e8aef9320b2")
+        apiService.getImage(getRandomId(), "2a1b3bd2aed440d2b7b96e8aef9320b2")
                 .enqueue(new Callback<Result>() {
                     @Override
                     public void onResponse(Call<Result> call, Response<Result> response) {
                         if (response.code() == 200) {
                             String url = response.body().getData().getImages().getOriginal().getUrl();
                             Log.e("url", url);
+                            imageView.setVisibility(View.VISIBLE);
                             request.load(url).into(imageView);
                         }
                     }
@@ -470,15 +547,16 @@ public class ShortcutService extends Service {
                     @Override
                     public void onFailure(Call<Result> call, Throwable t) {
                         t.printStackTrace();
+                        removeGifView();
                         Toast.makeText(ShortcutService.this, R.string.error_connection, Toast.LENGTH_SHORT).show();
                     }
                 });
     }
 
-    private String getRandomTag() {
-        String[] tags = getResources().getStringArray(R.array.tags);
+    private String getRandomId() {
+        String[] ids = getResources().getStringArray(R.array.ids);
         Random rand = new Random();
-        int index = rand.nextInt(tags.length);
-        return tags[index];
+        int index = rand.nextInt(ids.length);
+        return ids[index];
     }
 }

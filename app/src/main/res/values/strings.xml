@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">Simple Man</string>
-    <string name="wait_for_it">Searching for boobs…</string>
     <string name="fail_load_image">Failed to load those boobs!</string>
     <string name="error_connection">Boobs need internet!</string>
     <string name="add_floating_shortcut">Add floating shortcut</string>
     <string name="clear_shortcut">Clear shortcut</string>
+    <string name="searching_for_boobs">Searching for boobs…</string>
 </resources>

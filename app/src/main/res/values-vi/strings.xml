@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Đàn Ông Đơn Giản</string>
+    <string name="clear_shortcut">Xóa lối tắt</string>
+    <string name="error_connection">Vếu cũng cần mạng trâu!</string>
+    <string name="fail_load_image">Vếu quá khủng nên load hỏng, thông cảm nha!</string>
+    <string name="searching_for_boobs">Đang tìm vếu…</string>
+    <string name="add_floating_shortcut">Thêm lối tắt</string>
+</resources>
