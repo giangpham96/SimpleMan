@@ -10,8 +10,12 @@ public class RetrofitClient {
 
     public static Retrofit getClient() {
         if (retrofit == null) {
+//            HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
+//            interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+//            OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
             retrofit = new Retrofit.Builder()
                     .baseUrl(BASE_URL)
+//                    .client(client)
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
         }

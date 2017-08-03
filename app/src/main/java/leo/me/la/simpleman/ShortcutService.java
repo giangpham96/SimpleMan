@@ -9,6 +9,7 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -254,7 +255,7 @@ public class ShortcutService extends Service {
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.MATCH_PARENT,
                 WindowManager.LayoutParams.MATCH_PARENT,
-                WindowManager.LayoutParams.TYPE_APPLICATION,
+                WindowManager.LayoutParams.TYPE_PHONE,
                 WindowManager.LayoutParams.FLAG_IGNORE_CHEEK_PRESSES,
                 PixelFormat.TRANSLUCENT);
         getWindowManager().addView(dimView, params);
@@ -284,7 +285,7 @@ public class ShortcutService extends Service {
         shortcutParams = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.TYPE_APPLICATION,
+                WindowManager.LayoutParams.TYPE_PHONE,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                 PixelFormat.TRANSLUCENT
         );
@@ -312,7 +313,7 @@ public class ShortcutService extends Service {
         gifContainerParams = new WindowManager.LayoutParams(
                 width,
                 height,
-                WindowManager.LayoutParams.TYPE_APPLICATION,
+                WindowManager.LayoutParams.TYPE_PHONE,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                 PixelFormat.TRANSLUCENT
         );
@@ -445,12 +446,13 @@ public class ShortcutService extends Service {
         reload.startAnimation(rotateAnimation);
         reload.setEnabled(false);
         APIService apiService = RetrofitClient.getClient().create(APIService.class);
-        apiService.getImage(getRandomTag(), "r", "2a1b3bd2aed440d2b7b96e8aef9320b2")
+        apiService.getImage(getRandomTag(), "2a1b3bd2aed440d2b7b96e8aef9320b2")
                 .enqueue(new Callback<Result>() {
                     @Override
                     public void onResponse(Call<Result> call, Response<Result> response) {
                         if (response.code() == 200) {
-                            String url = response.body().getData().getImageOriginalUrl();
+                            String url = response.body().getData().getImages().getOriginal().getUrl();
+                            Log.e("url", url);
                             request.load(url).into(imageView);
                         }
                     }

@@ -8,9 +8,6 @@ public class Result {
     @SerializedName("data")
     @Expose
     private Data data;
-    @SerializedName("meta")
-    @Expose
-    private Meta meta;
 
     public Data getData() {
         return data;
@@ -20,145 +17,65 @@ public class Result {
         this.data = data;
     }
 
-    public Meta getMeta() {
-        return meta;
-    }
-
-    public void setMeta(Meta meta) {
-        this.meta = meta;
-    }
-
-    private class Meta {
-
-        @SerializedName("status")
+    public static class Data {
+        @SerializedName("images")
         @Expose
-        private int status;
-        @SerializedName("msg")
-        @Expose
-        private String msg;
-        @SerializedName("response_id")
-        @Expose
-        private String responseId;
+        private Images images;
 
-        public int getStatus() {
-            return status;
+        public Images getImages() {
+            return images;
         }
 
-        public void setStatus(int status) {
-            this.status = status;
-        }
-
-        public String getMsg() {
-            return msg;
-        }
-
-        public void setMsg(String msg) {
-            this.msg = msg;
-        }
-
-        public String getResponseId() {
-            return responseId;
-        }
-
-        public void setResponseId(String responseId) {
-            this.responseId = responseId;
+        public void setImages(Images images) {
+            this.images = images;
         }
 
     }
 
-    public class Data {
+    public static class Images {
 
-        @SerializedName("type")
+        @SerializedName("original")
         @Expose
-        private String type;
-        @SerializedName("id")
-        @Expose
-        private String id;
+        private Original original;
+
+        public Original getOriginal() {
+            return original;
+        }
+
+        public void setOriginal(Original original) {
+            this.original = original;
+        }
+    }
+
+    public static class Original {
+
         @SerializedName("url")
         @Expose
         private String url;
-        @SerializedName("image_original_url")
+        @SerializedName("width")
         @Expose
-        private String imageOriginalUrl;
-        @SerializedName("image_url")
+        private String width;
+        @SerializedName("height")
         @Expose
-        private String imageUrl;
-        @SerializedName("image_mp4_url")
+        private String height;
+        @SerializedName("size")
         @Expose
-        private String imageMp4Url;
-        @SerializedName("image_frames")
+        private String size;
+        @SerializedName("frames")
         @Expose
-        private String imageFrames;
-        @SerializedName("image_width")
+        private String frames;
+        @SerializedName("mp4")
         @Expose
-        private String imageWidth;
-        @SerializedName("image_height")
+        private String mp4;
+        @SerializedName("mp4_size")
         @Expose
-        private String imageHeight;
-        @SerializedName("fixed_height_downsampled_url")
+        private String mp4Size;
+        @SerializedName("webp")
         @Expose
-        private String fixedHeightDownsampledUrl;
-        @SerializedName("fixed_height_downsampled_width")
+        private String webp;
+        @SerializedName("webp_size")
         @Expose
-        private String fixedHeightDownsampledWidth;
-        @SerializedName("fixed_height_downsampled_height")
-        @Expose
-        private String fixedHeightDownsampledHeight;
-        @SerializedName("fixed_width_downsampled_url")
-        @Expose
-        private String fixedWidthDownsampledUrl;
-        @SerializedName("fixed_width_downsampled_width")
-        @Expose
-        private String fixedWidthDownsampledWidth;
-        @SerializedName("fixed_width_downsampled_height")
-        @Expose
-        private String fixedWidthDownsampledHeight;
-        @SerializedName("fixed_height_small_url")
-        @Expose
-        private String fixedHeightSmallUrl;
-        @SerializedName("fixed_height_small_still_url")
-        @Expose
-        private String fixedHeightSmallStillUrl;
-        @SerializedName("fixed_height_small_width")
-        @Expose
-        private String fixedHeightSmallWidth;
-        @SerializedName("fixed_height_small_height")
-        @Expose
-        private String fixedHeightSmallHeight;
-        @SerializedName("fixed_width_small_url")
-        @Expose
-        private String fixedWidthSmallUrl;
-        @SerializedName("fixed_width_small_still_url")
-        @Expose
-        private String fixedWidthSmallStillUrl;
-        @SerializedName("fixed_width_small_width")
-        @Expose
-        private String fixedWidthSmallWidth;
-        @SerializedName("fixed_width_small_height")
-        @Expose
-        private String fixedWidthSmallHeight;
-        @SerializedName("username")
-        @Expose
-        private String username;
-        @SerializedName("caption")
-        @Expose
-        private String caption;
-
-        public String getType() {
-            return type;
-        }
-
-        public void setType(String type) {
-            this.type = type;
-        }
-
-        public String getId() {
-            return id;
-        }
-
-        public void setId(String id) {
-            this.id = id;
-        }
+        private String webpSize;
 
         public String getUrl() {
             return url;
@@ -168,180 +85,68 @@ public class Result {
             this.url = url;
         }
 
-        public String getImageOriginalUrl() {
-            return imageOriginalUrl;
+        public String getWidth() {
+            return width;
         }
 
-        public void setImageOriginalUrl(String imageOriginalUrl) {
-            this.imageOriginalUrl = imageOriginalUrl;
+        public void setWidth(String width) {
+            this.width = width;
         }
 
-        public String getImageUrl() {
-            return imageUrl;
+        public String getHeight() {
+            return height;
         }
 
-        public void setImageUrl(String imageUrl) {
-            this.imageUrl = imageUrl;
+        public void setHeight(String height) {
+            this.height = height;
         }
 
-        public String getImageMp4Url() {
-            return imageMp4Url;
+        public String getSize() {
+            return size;
         }
 
-        public void setImageMp4Url(String imageMp4Url) {
-            this.imageMp4Url = imageMp4Url;
+        public void setSize(String size) {
+            this.size = size;
         }
 
-        public String getImageFrames() {
-            return imageFrames;
+        public String getFrames() {
+            return frames;
         }
 
-        public void setImageFrames(String imageFrames) {
-            this.imageFrames = imageFrames;
+        public void setFrames(String frames) {
+            this.frames = frames;
         }
 
-        public String getImageWidth() {
-            return imageWidth;
+        public String getMp4() {
+            return mp4;
         }
 
-        public void setImageWidth(String imageWidth) {
-            this.imageWidth = imageWidth;
+        public void setMp4(String mp4) {
+            this.mp4 = mp4;
         }
 
-        public String getImageHeight() {
-            return imageHeight;
+        public String getMp4Size() {
+            return mp4Size;
         }
 
-        public void setImageHeight(String imageHeight) {
-            this.imageHeight = imageHeight;
+        public void setMp4Size(String mp4Size) {
+            this.mp4Size = mp4Size;
         }
 
-        public String getFixedHeightDownsampledUrl() {
-            return fixedHeightDownsampledUrl;
+        public String getWebp() {
+            return webp;
         }
 
-        public void setFixedHeightDownsampledUrl(String fixedHeightDownsampledUrl) {
-            this.fixedHeightDownsampledUrl = fixedHeightDownsampledUrl;
+        public void setWebp(String webp) {
+            this.webp = webp;
         }
 
-        public String getFixedHeightDownsampledWidth() {
-            return fixedHeightDownsampledWidth;
+        public String getWebpSize() {
+            return webpSize;
         }
 
-        public void setFixedHeightDownsampledWidth(String fixedHeightDownsampledWidth) {
-            this.fixedHeightDownsampledWidth = fixedHeightDownsampledWidth;
-        }
-
-        public String getFixedHeightDownsampledHeight() {
-            return fixedHeightDownsampledHeight;
-        }
-
-        public void setFixedHeightDownsampledHeight(String fixedHeightDownsampledHeight) {
-            this.fixedHeightDownsampledHeight = fixedHeightDownsampledHeight;
-        }
-
-        public String getFixedWidthDownsampledUrl() {
-            return fixedWidthDownsampledUrl;
-        }
-
-        public void setFixedWidthDownsampledUrl(String fixedWidthDownsampledUrl) {
-            this.fixedWidthDownsampledUrl = fixedWidthDownsampledUrl;
-        }
-
-        public String getFixedWidthDownsampledWidth() {
-            return fixedWidthDownsampledWidth;
-        }
-
-        public void setFixedWidthDownsampledWidth(String fixedWidthDownsampledWidth) {
-            this.fixedWidthDownsampledWidth = fixedWidthDownsampledWidth;
-        }
-
-        public String getFixedWidthDownsampledHeight() {
-            return fixedWidthDownsampledHeight;
-        }
-
-        public void setFixedWidthDownsampledHeight(String fixedWidthDownsampledHeight) {
-            this.fixedWidthDownsampledHeight = fixedWidthDownsampledHeight;
-        }
-
-        public String getFixedHeightSmallUrl() {
-            return fixedHeightSmallUrl;
-        }
-
-        public void setFixedHeightSmallUrl(String fixedHeightSmallUrl) {
-            this.fixedHeightSmallUrl = fixedHeightSmallUrl;
-        }
-
-        public String getFixedHeightSmallStillUrl() {
-            return fixedHeightSmallStillUrl;
-        }
-
-        public void setFixedHeightSmallStillUrl(String fixedHeightSmallStillUrl) {
-            this.fixedHeightSmallStillUrl = fixedHeightSmallStillUrl;
-        }
-
-        public String getFixedHeightSmallWidth() {
-            return fixedHeightSmallWidth;
-        }
-
-        public void setFixedHeightSmallWidth(String fixedHeightSmallWidth) {
-            this.fixedHeightSmallWidth = fixedHeightSmallWidth;
-        }
-
-        public String getFixedHeightSmallHeight() {
-            return fixedHeightSmallHeight;
-        }
-
-        public void setFixedHeightSmallHeight(String fixedHeightSmallHeight) {
-            this.fixedHeightSmallHeight = fixedHeightSmallHeight;
-        }
-
-        public String getFixedWidthSmallUrl() {
-            return fixedWidthSmallUrl;
-        }
-
-        public void setFixedWidthSmallUrl(String fixedWidthSmallUrl) {
-            this.fixedWidthSmallUrl = fixedWidthSmallUrl;
-        }
-
-        public String getFixedWidthSmallStillUrl() {
-            return fixedWidthSmallStillUrl;
-        }
-
-        public void setFixedWidthSmallStillUrl(String fixedWidthSmallStillUrl) {
-            this.fixedWidthSmallStillUrl = fixedWidthSmallStillUrl;
-        }
-
-        public String getFixedWidthSmallWidth() {
-            return fixedWidthSmallWidth;
-        }
-
-        public void setFixedWidthSmallWidth(String fixedWidthSmallWidth) {
-            this.fixedWidthSmallWidth = fixedWidthSmallWidth;
-        }
-
-        public String getFixedWidthSmallHeight() {
-            return fixedWidthSmallHeight;
-        }
-
-        public void setFixedWidthSmallHeight(String fixedWidthSmallHeight) {
-            this.fixedWidthSmallHeight = fixedWidthSmallHeight;
-        }
-
-        public String getUsername() {
-            return username;
-        }
-
-        public void setUsername(String username) {
-            this.username = username;
-        }
-
-        public String getCaption() {
-            return caption;
-        }
-
-        public void setCaption(String caption) {
-            this.caption = caption;
+        public void setWebpSize(String webpSize) {
+            this.webpSize = webpSize;
         }
 
     }
