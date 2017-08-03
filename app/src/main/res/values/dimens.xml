@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="small_mp">8dp</dimen>
+    <dimen name="corner">28dp</dimen>
+    <dimen name="shortcut_size">56dp</dimen>
+    <dimen name="indicator_width">20dp</dimen>
+    <dimen name="indicator_height">10dp</dimen>
+    <dimen name="indicator_margin">18dp</dimen>
+</resources>

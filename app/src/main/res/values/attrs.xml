@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="IndicatorView">
+        <attr name="color" format="color" />
+        <attr name="shape" format="integer">
+            <enum name="triangle" value="1" />
+            <enum name="circle" value="0" />
+        </attr>
+        <attr name="isLeftToRight" format="boolean" />
+    </declare-styleable>
+    <declare-styleable name="CustomProgressBar">
+        <attr name="vertical" format="boolean" />
+        <attr name="barColor" format="color" />
+    </declare-styleable>
+</resources>
