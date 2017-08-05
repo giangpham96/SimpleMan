@@ -10,6 +10,7 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_woman"
         android:label="@string/app_name"
+        android:process="leo.me.la.simpleman"
         android:roundIcon="@drawable/ic_woman"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
@@ -19,7 +20,8 @@
             android:name=".ShortcutService"
             android:configChanges="screenSize|orientation|screenLayout|navigation"
             android:enabled="true"
-            android:exported="false" />
+            android:exported="false"
+            android:process=":service" />
 
         <activity android:name=".MainActivity">
             <intent-filter>
