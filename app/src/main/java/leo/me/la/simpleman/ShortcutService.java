@@ -20,7 +20,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.ScaleAnimation;
@@ -48,6 +47,8 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import static android.view.MotionEvent.ACTION_DOWN;
+import static android.view.WindowManager.LayoutParams.FLAG_DIM_BEHIND;
+import static android.view.WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
 import static java.lang.Math.abs;
 
 public class ShortcutService extends Service {
@@ -59,11 +60,11 @@ public class ShortcutService extends Service {
     /**
      * The image view that shows the gif image
      */
-    ImageView imageView;
+    private ImageView imageView;
     /**
      * The button that is used to load another gif
      */
-    FloatingActionButton reload;
+    private FloatingActionButton reload;
     /**
      * The ViewGroup which contains the {@link ShortcutService#gifView}
      * so that the {@link ShortcutService#gifView} can be animated
@@ -83,7 +84,7 @@ public class ShortcutService extends Service {
     private Animation rotateAnimation;
     /**
      * Used to add, remove and position {@link ShortcutService#shortcutView},
-     * {@link ShortcutService#gifContainer} and {@link ShortcutService#dimView}
+     * {@link ShortcutService#gifContainer}
      */
     private WindowManager windowManager;
     /**
@@ -110,11 +111,6 @@ public class ShortcutService extends Service {
      * The coordinates where the shortcut is located before being clicked
      */
     private int restoreX, restoreY;
-    /**
-     * The view that simulate the dim behind the {@link ShortcutService#gifView}
-     * and the {@link ShortcutService#shortcutView}
-     */
-    private View dimView;
     /**
      * Params of {@link ShortcutService#shortcutView} and {@link ShortcutService#gifContainer}
      */
@@ -214,7 +210,7 @@ public class ShortcutService extends Service {
     /**
      * Touch listener of {@link ShortcutService#shortcutView}
      */
-    View.OnTouchListener shortcutTouchListener = new View.OnTouchListener() {
+    private View.OnTouchListener shortcutTouchListener = new View.OnTouchListener() {
         private static final int MAX_CLICK_DURATION = 200;
         private long startClickTime;
         private int initialX;
@@ -288,7 +284,6 @@ public class ShortcutService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        createDimBackground();
         createShortcutView();
     }
 
@@ -319,43 +314,6 @@ public class ShortcutService extends Service {
             getWindowManager().removeView(shortcutView);
         }
         removeGifView();
-        if (dimView != null) {
-            getWindowManager().removeView(dimView);
-        }
-    }
-
-    private void createDimBackground() {
-        dimView = LayoutInflater.from(this).inflate(R.layout.dim_background, null);
-        dimView.setVisibility(View.GONE);
-        @SuppressLint("InlinedApi") int type = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-                ? WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
-                : WindowManager.LayoutParams.TYPE_PHONE;
-        WindowManager.LayoutParams params = new WindowManager.LayoutParams(
-                WindowManager.LayoutParams.MATCH_PARENT,
-                WindowManager.LayoutParams.MATCH_PARENT,
-                type,
-                WindowManager.LayoutParams.FLAG_IGNORE_CHEEK_PRESSES,
-                PixelFormat.TRANSLUCENT);
-        getWindowManager().addView(dimView, params);
-        dimView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                removeGifView();
-                handler.post(restoreShortcutPosition);
-                handler.removeCallbacks(updateShortcutPosition);
-            }
-        });
-        dimView.findViewById(R.id.dim).setOnKeyListener(new View.OnKeyListener() {
-            @Override
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if (event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
-                    removeGifView();
-                    handler.post(restoreShortcutPosition);
-                    return true;
-                }
-                return false;
-            }
-        });
     }
 
     private void createShortcutView() {
@@ -371,6 +329,7 @@ public class ShortcutService extends Service {
                 PixelFormat.TRANSLUCENT
         );
 
+        shortcutParams.dimAmount = 0.6f;
         shortcutParams.gravity = Gravity.TOP | Gravity.START;
         resetSize();
         shortcutParams.x = widthPixels;
@@ -383,7 +342,36 @@ public class ShortcutService extends Service {
     }
 
     private void createGifView() {
-        gifContainer = new FrameLayout(this);
+        gifContainer = new FrameLayout(this) {
+            @Override
+            public boolean onTouchEvent(MotionEvent event) {
+                boolean checkX = event.getX() <= widthPixels
+                        && event.getX() >= widthPixels - shortcutDiameter;
+                boolean checkY = event.getY() <= heightPixels * VERTICAL_POSITION_RATIO + shortcutDiameter
+                        && event.getX() >= heightPixels * VERTICAL_POSITION_RATIO;
+                if (event.getAction() == MotionEvent.ACTION_OUTSIDE && !checkX && !checkY) {
+                    if (removeGifView()) {
+                        handler.post(restoreShortcutPosition);
+                        handler.removeCallbacks(updateShortcutPosition);
+                    }
+                }
+                return true;
+            }
+        };
+
+        gifContainer.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if (event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
+                    if (removeGifView()) {
+                        handler.post(restoreShortcutPosition);
+                        handler.removeCallbacks(updateShortcutPosition);
+                    }
+                    return true;
+                }
+                return false;
+            }
+        });
         gifContainer.setFocusableInTouchMode(true);
         gifContainer.setFocusable(true);
         gifContainer.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
@@ -398,7 +386,8 @@ public class ShortcutService extends Service {
                 width,
                 height,
                 type,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL |
+                        WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
                 PixelFormat.TRANSLUCENT
         );
 
@@ -413,10 +402,8 @@ public class ShortcutService extends Service {
                 Animation.ABSOLUTE, 0);
         animation.setDuration(150);
         gifView.findViewById(R.id.root).startAnimation(animation);
-        dimView.setVisibility(View.VISIBLE);
-        AlphaAnimation alphaAnimation = new AlphaAnimation(0f, 1f);
-        alphaAnimation.setDuration(150);
-        dimView.findViewById(R.id.dim).startAnimation(alphaAnimation);
+        shortcutParams.flags = FLAG_DIM_BEHIND | FLAG_NOT_FOCUSABLE;
+        getWindowManager().updateViewLayout(shortcutView, shortcutParams);
     }
 
     private int getGifViewWidth() {
@@ -446,26 +433,8 @@ public class ShortcutService extends Service {
     }
 
     private boolean removeGifView() {
-        //hide dim view
-        AlphaAnimation alphaAnimation = new AlphaAnimation(1f, 0f);
-        alphaAnimation.setDuration(150);
-        dimView.findViewById(R.id.dim).startAnimation(alphaAnimation);
-        alphaAnimation.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                dimView.setVisibility(View.GONE);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
+        shortcutParams.flags = FLAG_NOT_FOCUSABLE;
+        getWindowManager().updateViewLayout(shortcutView, shortcutParams);
         if (gifContainer != null) {
             if (gifView != null) {
                 //remove gif view
