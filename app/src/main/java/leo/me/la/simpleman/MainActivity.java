@@ -4,10 +4,13 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.TranslateAnimation;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.InterstitialAd;
@@ -18,13 +21,38 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int CODE_DRAW_OVER_OTHER_APP_PERMISSION = 2084;
     InterstitialAd mInterstitialAd;
+    private Handler mHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mHandler = new Handler();
+        initAds();
         initWindow();
-        initViews();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mHandler != null)
+            mHandler.removeCallbacks(null);
+        findViewById(R.id.giphy).setVisibility(View.VISIBLE);
+        findViewById(R.id.btn).setVisibility(View.INVISIBLE);
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                initViews();
+            }
+        }, 5000);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mHandler != null)
+            mHandler.removeCallbacks(null);
+        showInterstitial();
     }
 
     public boolean shouldInitPermission() {
@@ -52,11 +80,38 @@ public class MainActivity extends AppCompatActivity {
         getWindow().setLayout((int) (baseSize * 0.8), WRAP_CONTENT);
     }
 
+    private void initAds() {
+        mInterstitialAd = new InterstitialAd(this);
+        mInterstitialAd.setAdUnitId(getString(R.string.interstitial));
+        AdRequest adRequest = new AdRequest.Builder()
+                .addTestDevice("E795102A9C64A2862EF2257F549BB7A0")
+                .build();
+        mInterstitialAd.loadAd(adRequest);
+    }
+
     /**
      * Set and initialize the view elements.
      */
     private void initViews() {
-        findViewById(R.id.btnAdd).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.giphy).setVisibility(View.INVISIBLE);
+        findViewById(R.id.btn).setVisibility(View.VISIBLE);
+        TranslateAnimation fromLeft = new TranslateAnimation(
+                Animation.RELATIVE_TO_SELF, -1f,
+                Animation.RELATIVE_TO_SELF, 0,
+                Animation.RELATIVE_TO_SELF, 0,
+                Animation.RELATIVE_TO_SELF, 0
+        );
+        fromLeft.setDuration(400);
+        TranslateAnimation fromRight = new TranslateAnimation(
+                Animation.RELATIVE_TO_SELF, 1f,
+                Animation.RELATIVE_TO_SELF, 0,
+                Animation.RELATIVE_TO_SELF, 0,
+                Animation.RELATIVE_TO_SELF, 0
+        );
+        fromRight.setDuration(400);
+        View btnAdd = findViewById(R.id.btnAdd);
+        btnAdd.startAnimation(fromLeft);
+        btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (!shouldInitPermission()) {
@@ -65,38 +120,15 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-        findViewById(R.id.btnClear).setOnClickListener(new View.OnClickListener() {
+        View btnClear = findViewById(R.id.btnClear);
+        btnClear.startAnimation(fromRight);
+        btnClear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                finish();
                 stopService(new Intent(MainActivity.this, ShortcutService.class));
+                finish();
             }
         });
-
-        mInterstitialAd = new InterstitialAd(this);
-        mInterstitialAd.setAdUnitId(getString(R.string.interstitial));
-        AdRequest adRequest = new AdRequest.Builder().build();
-        mInterstitialAd.loadAd(adRequest);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == CODE_DRAW_OVER_OTHER_APP_PERMISSION) {
-
-            //Check if the permission is granted or not.
-            if (resultCode == RESULT_OK) {
-                startService(new Intent(MainActivity.this, ShortcutService.class));
-                finish();
-            }
-        } else {
-            super.onActivityResult(requestCode, resultCode, data);
-        }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        showInterstitial();
     }
 
     private void showInterstitial() {

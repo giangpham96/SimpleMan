@@ -6,13 +6,24 @@
     android:layout_height="match_parent"
     android:gravity="center"
     android:orientation="vertical"
+    app:cardBackgroundColor="#ffffff"
     app:cardCornerRadius="2dp"
     tools:context="leo.me.la.simpleman.MainActivity">
 
-    <LinearLayout
+    <leo.me.la.simpleman.GiphyLogoView
+        android:id="@+id/giphy"
+        android:layout_gravity="center"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_margin="16dp"
+        android:layout_height="wrap_content"
+        android:scaleType="centerInside"
+        android:src="@drawable/giphy"/>
+
+    <LinearLayout
+        android:visibility="invisible"
+        android:id="@+id/btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:gravity="center"
         android:orientation="vertical">
 
@@ -23,6 +34,9 @@
             android:layout_height="wrap_content"
             android:background="@drawable/button_green"
             android:text="@string/add_floating_shortcut"
+            android:layout_marginTop="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginLeft="16dp"
             android:textAllCaps="false"
             android:textColor="#ffffff" />
 
@@ -31,7 +45,7 @@
             style="@style/Base.Widget.AppCompat.Button.Borderless"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_margin="16dp"
             android:background="@drawable/button_red"
             android:text="@string/clear_shortcut"
             android:textAllCaps="false"
