@@ -7,14 +7,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="end"
+    android:theme="@style/BoobTheme"
     android:orientation="vertical">
 
     <leo.me.la.simpleman.IndicatorView
         android:id="@+id/indicator"
         android:layout_width="@dimen/indicator_width"
         android:layout_height="@dimen/indicator_height"
-        android:layout_marginEnd="@dimen/indicator_margin"
-        android:layout_marginStart="@dimen/indicator_margin" />
+        android:layout_marginLeft="@dimen/indicator_margin"
+        android:layout_marginRight="@dimen/indicator_margin" />
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -43,7 +44,7 @@
             android:layout_alignParentRight="true"
             android:layout_margin="8dp"
             android:src="@drawable/icon_renew"
-            android:theme="@style/AppTheme"
+            android:theme="@style/BoobTheme"
             app:fabSize="mini" />
     </RelativeLayout>
 </LinearLayout>

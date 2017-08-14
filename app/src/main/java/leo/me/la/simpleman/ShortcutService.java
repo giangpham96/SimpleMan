@@ -1,8 +1,12 @@
 package leo.me.la.simpleman;
 
 import android.annotation.SuppressLint;
+import android.app.Notification;
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.graphics.PixelFormat;
 import android.os.Build;
@@ -10,8 +14,10 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.NotificationCompat;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -273,6 +279,10 @@ public class ShortcutService extends Service {
         }
     };
 
+    private HardwareButtonReceiver receiver;
+
+    private IntentFilter intentFilter;
+
     public ShortcutService() {
     }
 
@@ -284,7 +294,23 @@ public class ShortcutService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        Notification notification = new NotificationCompat.Builder(this).setOngoing(true)
+                .setContentTitle(getString(R.string.app_name))
+                .setSmallIcon(R.mipmap.bra)
+                .build();
+        startForeground(29011111, notification);
         createShortcutView();
+        receiver = new HardwareButtonReceiver(new OnHardWareDown() {
+            @Override
+            public void onDown() {
+                if (removeGifView()) {
+                    handler.post(restoreShortcutPosition);
+                    handler.removeCallbacks(updateShortcutPosition);
+                }
+            }
+        });
+        intentFilter = new IntentFilter(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
+        registerReceiver(receiver, intentFilter);
     }
 
     @Override
@@ -307,13 +333,16 @@ public class ShortcutService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        stopForeground(true);
+        receiver.removeOnHardWareDownCallback();
+        unregisterReceiver(receiver);
         handler.removeCallbacks(updateShortcutPosition);
         handler.removeCallbacks(restoreShortcutPosition);
+        removeGifView();
         if (shortcutView != null) {
             shortcutView.setOnTouchListener(null);
             getWindowManager().removeView(shortcutView);
         }
-        removeGifView();
     }
 
     private void createShortcutView() {
@@ -375,7 +404,8 @@ public class ShortcutService extends Service {
         gifContainer.setFocusableInTouchMode(true);
         gifContainer.setFocusable(true);
         gifContainer.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
-        gifView = LayoutInflater.from(this).inflate(R.layout.boobs_view, null);
+        ContextThemeWrapper ctx = new ContextThemeWrapper(this, R.style.BoobTheme);
+        gifView = LayoutInflater.from(ctx).inflate(R.layout.boobs_view, null);
         resetSize();
         int width = getGifViewWidth();
         int height = getGifViewHeight();
@@ -530,5 +560,46 @@ public class ShortcutService extends Service {
         Random rand = new Random();
         int index = rand.nextInt(ids.length);
         return ids[index];
+    }
+
+    public static class HardwareButtonReceiver extends BroadcastReceiver {
+        final String TAG = "HardwareButtonReceiver";
+
+        final String SYSTEM_DIALOG_REASON_KEY = "reason";
+
+        final String SYSTEM_DIALOG_REASON_RECENT_APPS = "recentapps";
+
+        final String SYSTEM_DIALOG_REASON_HOME_KEY = "homekey";
+
+        private OnHardWareDown onHardWareDown;
+
+        public HardwareButtonReceiver(OnHardWareDown onHardWareDown) {
+            this.onHardWareDown = onHardWareDown;
+        }
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (action.equals(Intent.ACTION_CLOSE_SYSTEM_DIALOGS)) {
+                String reason = intent.getStringExtra(SYSTEM_DIALOG_REASON_KEY);
+                if (reason != null) {
+//                    Log.e(TAG, "action:" + action + ",reason:" + reason);
+                    if (reason.equals(SYSTEM_DIALOG_REASON_RECENT_APPS)
+                            || reason.equals(SYSTEM_DIALOG_REASON_HOME_KEY)) {
+                        if(onHardWareDown != null) {
+                            onHardWareDown.onDown();
+                        }
+                    }
+                }
+            }
+        }
+
+        public void removeOnHardWareDownCallback() {
+            onHardWareDown = null;
+        }
+    }
+
+    interface OnHardWareDown {
+        void onDown();
     }
 }

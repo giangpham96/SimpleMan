@@ -1,24 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content">
 
-    <android.support.v7.widget.CardView
+    <ImageView
         android:id="@+id/shortcut"
         android:layout_width="@dimen/shortcut_size"
         android:layout_height="@dimen/shortcut_size"
         android:alpha="0.6"
-        app:cardBackgroundColor="#000000"
-        app:cardCornerRadius="@dimen/corner">
-
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:layout_margin="@dimen/small_mp"
-            android:background="@drawable/ic_woman"
-            tools:ignore="ContentDescription" />
-    </android.support.v7.widget.CardView>
+        android:background="@drawable/ic_bra"
+        tools:ignore="ContentDescription"/>
 </LinearLayout>
