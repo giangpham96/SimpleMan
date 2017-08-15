@@ -37,6 +37,12 @@ public class Result {
         @SerializedName("original")
         @Expose
         private Original original;
+        @SerializedName("fixed_width")
+        @Expose
+        private FixedWidth fixedWidth;
+        @SerializedName("fixed_height")
+        @Expose
+        private FixedHeight fixedHeight;
 
         public Original getOriginal() {
             return original;
@@ -44,6 +50,22 @@ public class Result {
 
         public void setOriginal(Original original) {
             this.original = original;
+        }
+
+        public FixedWidth getFixedWidth() {
+            return fixedWidth;
+        }
+
+        public void setFixedWidth(FixedWidth fixedWidth) {
+            this.fixedWidth = fixedWidth;
+        }
+
+        public FixedHeight getFixedHeight() {
+            return fixedHeight;
+        }
+
+        public void setFixedHeight(FixedHeight fixedHeight) {
+            this.fixedHeight = fixedHeight;
         }
     }
 
@@ -58,24 +80,12 @@ public class Result {
         @SerializedName("height")
         @Expose
         private String height;
-        @SerializedName("size")
-        @Expose
-        private String size;
-        @SerializedName("frames")
-        @Expose
-        private String frames;
         @SerializedName("mp4")
         @Expose
         private String mp4;
-        @SerializedName("mp4_size")
-        @Expose
-        private String mp4Size;
         @SerializedName("webp")
         @Expose
         private String webp;
-        @SerializedName("webp_size")
-        @Expose
-        private String webpSize;
 
         public String getUrl() {
             return url;
@@ -101,36 +111,12 @@ public class Result {
             this.height = height;
         }
 
-        public String getSize() {
-            return size;
-        }
-
-        public void setSize(String size) {
-            this.size = size;
-        }
-
-        public String getFrames() {
-            return frames;
-        }
-
-        public void setFrames(String frames) {
-            this.frames = frames;
-        }
-
         public String getMp4() {
             return mp4;
         }
 
         public void setMp4(String mp4) {
             this.mp4 = mp4;
-        }
-
-        public String getMp4Size() {
-            return mp4Size;
-        }
-
-        public void setMp4Size(String mp4Size) {
-            this.mp4Size = mp4Size;
         }
 
         public String getWebp() {
@@ -140,14 +126,57 @@ public class Result {
         public void setWebp(String webp) {
             this.webp = webp;
         }
+    }
 
-        public String getWebpSize() {
-            return webpSize;
+    public class FixedHeight {
+
+        @SerializedName("url")
+        @Expose
+        private String url;
+        @SerializedName("height")
+        @Expose
+        private String height;
+
+        public String getUrl() {
+            return url;
         }
 
-        public void setWebpSize(String webpSize) {
-            this.webpSize = webpSize;
+        public void setUrl(String url) {
+            this.url = url;
         }
 
+        public String getHeight() {
+            return height;
+        }
+
+        public void setHeight(String height) {
+            this.height = height;
+        }
+    }
+
+    public class FixedWidth {
+
+        @SerializedName("url")
+        @Expose
+        private String url;
+        @SerializedName("width")
+        @Expose
+        private String width;
+
+        public String getUrl() {
+            return url;
+        }
+
+        public void setUrl(String url) {
+            this.url = url;
+        }
+
+        public String getWidth() {
+            return width;
+        }
+
+        public void setWidth(String width) {
+            this.width = width;
+        }
     }
 }

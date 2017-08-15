@@ -85,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
         mInterstitialAd.setAdUnitId(getString(R.string.interstitial));
         AdRequest adRequest = new AdRequest.Builder()
                 .addTestDevice("E795102A9C64A2862EF2257F549BB7A0")
+                .addTestDevice("8D9BA6C70BBD1A1919720F807A4480AF")
                 .build();
         mInterstitialAd.loadAd(adRequest);
     }

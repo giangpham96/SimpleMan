@@ -16,7 +16,6 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.NotificationCompat;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.Display;
 import android.view.Gravity;
@@ -538,8 +537,20 @@ public class ShortcutService extends Service {
                     @Override
                     public void onResponse(Call<Result> call, Response<Result> response) {
                         if (response.code() == 200) {
-                            String url = response.body().getData().getImages().getOriginal().getUrl();
-                            Log.e("url", url);
+                            String url;
+                            Result.Original original = response.body().getData().getImages().getOriginal();
+                            Result.FixedHeight fixedHeight = response.body().getData().getImages().getFixedHeight();
+                            Result.FixedWidth fixedWidth = response.body().getData().getImages().getFixedWidth();
+
+                            int originalHeight = Integer.parseInt(original.getHeight());
+                            int fixedSizeHeight = Integer.parseInt(fixedHeight.getHeight());
+                            if (originalHeight <= fixedSizeHeight) {
+                                url = original.getUrl();
+                            } else if (originalHeight <= Integer.parseInt(original.getWidth())) {
+                                url = fixedHeight.getUrl();
+                            } else {
+                                url = fixedWidth.getUrl();
+                            }
                             imageView.setVisibility(View.VISIBLE);
                             request.load(url).into(imageView);
                         }
@@ -586,7 +597,7 @@ public class ShortcutService extends Service {
 //                    Log.e(TAG, "action:" + action + ",reason:" + reason);
                     if (reason.equals(SYSTEM_DIALOG_REASON_RECENT_APPS)
                             || reason.equals(SYSTEM_DIALOG_REASON_HOME_KEY)) {
-                        if(onHardWareDown != null) {
+                        if (onHardWareDown != null) {
                             onHardWareDown.onDown();
                         }
                     }
